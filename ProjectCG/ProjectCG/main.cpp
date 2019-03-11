@@ -6,7 +6,6 @@
 #include <OpenGL/gl.h>
 #include <OpenGl/glu.h>
 #include <GLUT/glut.h>
-#include "RgbImage.h"
 
 //--------------------------------- Definir cores
 #define BLUE     0.0, 0.0, 1.0, 1.0
@@ -22,7 +21,8 @@
 
 //------------------------------------------------------------ Sistema Coordenadas + objectos
 GLint        wScreen=800, hScreen=600;        //.. janela (pixeis)
-GLfloat        xC = 15.0, yC = 15.0, zC = 70.0;
+GLfloat        xC=10.0, yC=10.0, zC=10.0;        //.. Mundo  (unidades mundo)
+
 //------------------------------------------------------------ Observador
 GLfloat  rVisao=10, aVisao=0.5*PI, incVisao=0.05;
 GLfloat  obsP[] ={rVisao*cos(aVisao), 3.0, rVisao*sin(aVisao)};
@@ -36,11 +36,8 @@ static GLuint     cima[] = {8,11, 10,  9};
 static GLuint     esquerda[]= {0, 1, 2, 3};
 static GLuint     direita[ ]= {4, 7, 6, 5};;
 
-//------------------------------------------------------------ Texturas
-GLuint  texture[18];
-RgbImage imag;
 
-GLfloat tamanhoanhoY = 40.0;
+
 GLfloat tam=2.0;
 static GLfloat vertices[]={
     //�������������������������������������� x=tam (Esquerda)
@@ -99,90 +96,7 @@ static GLfloat cores[]={
 
 
 
-void criaDefineTexturas() {
-    
-    glGenTextures(1, &texture[0]);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Back.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    glGenTextures(1, &texture[1]);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Down.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-   
-    glGenTextures(1, &texture[2]);
-    glBindTexture(GL_TEXTURE_2D, texture[2]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Front.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    glGenTextures(1, &texture[3]);
-    glBindTexture(GL_TEXTURE_2D, texture[3]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Top.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    glGenTextures(1, &texture[4]);
-    glBindTexture(GL_TEXTURE_2D, texture[4]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Right.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    glGenTextures(1, &texture[5]);
-    glBindTexture(GL_TEXTURE_2D, texture[5]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/ProjectCG/ProjectCG/textures/Left.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-   
-    
-}
+
 
 
 
@@ -191,17 +105,19 @@ void criaDefineTexturas() {
 //=========================================================================== INIT
 void inicializa(void)
 {
-    glClearColor(WHITE);        //Apagar
-    glEnable(GL_DEPTH_TEST);    //Profundidade
-    glEnable(GL_BLEND);
-    glShadeModel(GL_SMOOTH);
-    criaDefineTexturas();
+    glClearColor(BLACK);        //������������������������������Apagar
+    glEnable(GL_DEPTH_TEST);    //������������������������������Profundidade
+    glShadeModel(GL_SMOOTH);    //������������������������������Interpolacao de cores
     
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_COLOR_MATERIAL);// Habilita a definição da cor do material a partir da cor corrente
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glEnable(GL_CULL_FACE);        //������������������������������Faces visiveis
+    glCullFace(GL_BACK);        //������������������������������Mostrar so as da frente
+    
+    glVertexPointer(3, GL_FLOAT, 0, vertices); //���������������Vertex arrays
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glNormalPointer(GL_FLOAT, 0, normais);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glColorPointer(3, GL_FLOAT, 0, cores);
+    glEnableClientState(GL_COLOR_ARRAY);
 }
 
 
@@ -229,120 +145,18 @@ void drawEixos()
     
 }
 
-void drawSkybox() {
-    
-    
-    //atrás
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glPushMatrix();
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(-800, 600, -250);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(800, 600, -250);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(800, -600, -250);
-    glTexCoord2f(0.0f, 1.0f); glVertex3i(-800, -600, -250);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    //esquerda
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[3]);
-    glPushMatrix();
-    
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(-250, -600, 800);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(-250, 600, 800);
-    glTexCoord2f(0.0f, 1.0f); glVertex3i(-250, 600, -800);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(-250, -600, -800);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    //direita
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[2]);
-    glPushMatrix();
-    
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(250, -600, 800);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(250, 600, 800);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(250, 600, -800);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(250, -600, -800);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    
-    //chão
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glPushMatrix();
-    
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(-800, -tamanhoanhoY - 10, -800);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(-800, -tamanhoanhoY - 10, 800);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(800, -tamanhoanhoY - 10, 800);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(800, -tamanhoanhoY - 10, -800);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    
-    
-    
-    //Frente
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[4]);
-    glPushMatrix();
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(-800, 600, 650);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(800, 600, 650);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(800, -600, 650);
-    glTexCoord2f(0.0f, 1.0f); glVertex3i(-800, -600, 650);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    
-    
-    // -------------------------Ceu-------------------
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[5]);
-    glPushMatrix();
-    
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(-800, 250, 800);
-    glTexCoord2f(1.0f, 0.0f); glVertex3i(-800, 250, -800);
-    glTexCoord2f(0.0f, 0.0f); glVertex3i(800, 250, -800);
-    glTexCoord2f(1.0f, 1.0f); glVertex3i(800, 250, 800);
-    glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    
-    
-    
-}
+
 
 
 void drawScene(){
     
     //=================================================== Qual o lado ?
-/*if (frenteVisivel)
+    if (frenteVisivel)
         glCullFace(GL_BACK);  //glFrontFace(GL_CW);
     else
         glCullFace(GL_FRONT);  //glFrontFace(GL_CCW);
-    */
-    /*
+    
+    
     //==================================== MESA
     //glColorPointer(3, GL_FLOAT, 0, cor);     podia ser modificada a cor !
     glPushMatrix();
@@ -352,16 +166,15 @@ void drawScene(){
     glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, direita);
     glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, esquerda);
     glPopMatrix();
-    */
-    drawSkybox();
-    /*
+    
+    
     //==================================== PAralelipipedo Amarelo
     glColor4f(YELLOW);
     glPushMatrix();
     //?? escala, rotacao, translacao ??
     glTranslated(0, 3, 0);
     glutWireTeapot(1);
-    glPopMatrix();*/
+    glPopMatrix();
     
 }
 
@@ -380,13 +193,12 @@ void display(void){
     glLoadIdentity();                                                    // ESQUECER PoR AGORA
     //================================================================= NAO MOFIFICAR
     
-    glRotatef(aVisao, 0, 1, 0);
-   
+    
     //-------------------------------------------------------------- observador
     gluLookAt(obsP[0], obsP[1], obsP[2], 0,0,0, 0, 1, 0);
-    glEnable(GL_NORMALIZE);
+    
     //����������������������������������������������������������Objectos/modelos
-    //drawEixos();
+    drawEixos();
     drawScene();
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Actualizacao
@@ -477,7 +289,7 @@ int main(int argc, char** argv){
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
     glutInitWindowSize (wScreen, hScreen);
     glutInitWindowPosition (300, 100);
-    glutCreateWindow ("Projeto Computação Gráfica 2018/2019");
+    glutCreateWindow ("Projeto Computação Gráfica 2019/2019 | João Figueiredo | Pedro Chicória");
     
     inicializa();
     
