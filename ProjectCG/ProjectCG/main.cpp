@@ -50,6 +50,78 @@ void init(void)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
+void drawTerrace (){
+    //-------------------------Parede Direita----------
+
+    glPushMatrix();
+    glColor4f(WHITE);
+    glTranslated(0, 0, -45);
+    glBegin(GL_QUADS);
+    glVertex3i(tamanho, -tamanho, tamanho);
+    glVertex3i(tamanho, tamanho, tamanho);
+    glVertex3i(tamanho, tamanho, -tamanho);
+    glVertex3i(tamanho, -tamanho, -tamanho);
+    glEnd();
+    glPopMatrix();
+  
+    
+    
+    //-------------------------Parede Esquerda----------
+    
+    
+    
+    glPushMatrix();
+    glColor4f(WHITE);
+    glTranslated(0, 0, -45);
+    glBegin(GL_QUADS);
+    glVertex3i(-tamanho, -tamanho, tamanho);
+    glVertex3i(-tamanho, tamanho, tamanho);
+    glVertex3i(-tamanho, tamanho, -tamanho);
+    glVertex3i(-tamanho, -tamanho, -tamanho);
+    glEnd();
+    glPopMatrix();
+    
+    
+    
+    //-------------------------Parede Atras----------
+    
+
+    
+    
+
+    glPushMatrix();
+    glColor4f(WHITE);
+    glTranslated(0, 0, -45);
+    glBegin(GL_QUADS);
+    glVertex3i(-tamanho, tamanho, -tamanho);
+    glVertex3i(tamanho, tamanho, -tamanho);
+    glVertex3i(tamanho, -tamanho, -tamanho);
+    glVertex3i(-tamanho, -tamanho, -tamanho);
+    glEnd();
+    glPopMatrix();
+    
+    
+    
+    
+    //-------------------------Parede Frente----------
+    
+    glPushMatrix();
+    glColor4f(WHITE);
+    glTranslated(0, 0, -45);
+    glBegin(GL_QUADS);
+    glVertex3i(-tamanho, tamanho, tamanho);
+    glVertex3i(-tamanho , tamanho, tamanho);
+    glVertex3i(-tamanho , -tamanho, tamanho);
+    glVertex3i(-tamanho, -tamanho, tamanho);
+    glEnd();
+    glPopMatrix();
+    
+    
+    
+    
+}
+
+
 void drawSkybox()
 {
     
@@ -135,6 +207,7 @@ void drawSkybox()
 void drawScene()
 {
     drawSkybox();
+    drawTerrace();
 }
 
 void display(void)
@@ -198,34 +271,6 @@ void keyboard(unsigned char key, int x, int y)
             obsF[0] = obsF[0] + movimentoX * 2;
             obsF[2] = obsF[2] + movimentoZ * 2;
       
-            glutPostRedisplay();
-            break;
-            
-        case 'o':
-        case 'O':
-            
-            glutPostRedisplay();
-            break;
-            //--------------------------- Rotate lateral na lata
-        case 'p':
-        case 'P':
-            
-            glutPostRedisplay();
-            break;
-            
-        case 'u':
-            
-            break;
-            
-        case 'l':
-        case 'L':
-            
-            glutPostRedisplay();
-            break;
-            
-        case 'z':
-        case 'Z':
-            
             glutPostRedisplay();
             break;
             //--------------------------- Escape
