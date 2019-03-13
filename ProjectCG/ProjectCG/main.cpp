@@ -40,7 +40,6 @@ void drawSkybox();
 
 void init(void)
 {
-    
     glClearColor(WHITE);     //Apagar
     glEnable(GL_DEPTH_TEST); //Profundidade
     glEnable(GL_BLEND);
@@ -50,77 +49,117 @@ void init(void)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
-void drawTerrace (){
-    //-------------------------Parede Direita----------
-
-    glPushMatrix();
+void drawTerrace()
+{
+    glTranslated(50, 0, -45);
+    //Lado multicolorido - FRENTE
+    glBegin(GL_POLYGON);
     glColor4f(WHITE);
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glVertex3i(tamanho, -tamanho, tamanho);
-    glVertex3i(tamanho, tamanho, tamanho);
-    glVertex3i(tamanho, tamanho, -tamanho);
-    glVertex3i(tamanho, -tamanho, -tamanho);
+    glVertex3f(tamanho, -tamanhoY, -tamanho);
+    glVertex3f(tamanho, tamanhoY, -tamanho);
+    glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
+    glVertex3f(-tamanho + 70, -tamanhoY, -tamanho);
     glEnd();
-    glPopMatrix();
-  
     
-    
-    //-------------------------Parede Esquerda----------
-    
-    
-    
-    glPushMatrix();
+    glBegin(GL_POLYGON);
     glColor4f(WHITE);
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glVertex3i(-tamanho, -tamanho, tamanho);
-    glVertex3i(-tamanho, tamanho, tamanho);
-    glVertex3i(-tamanho, tamanho, -tamanho);
-    glVertex3i(-tamanho, -tamanho, -tamanho);
+    glVertex3f(0, -tamanhoY, -tamanho);
+    glVertex3f(0, 0, -tamanho);
+    glVertex3f(-tamanho, 0, -tamanho);
+    glVertex3f(-tamanho, -tamanhoY, -tamanho);
     glEnd();
-    glPopMatrix();
     
-    
-    
-    //-------------------------Parede Atras----------
-    
-
-    
-    
-
-    glPushMatrix();
+    // Lado branco - TRASEIRA
+    glBegin(GL_POLYGON);
     glColor4f(WHITE);
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glVertex3i(-tamanho, tamanho, -tamanho);
-    glVertex3i(tamanho, tamanho, -tamanho);
-    glVertex3i(tamanho, -tamanho, -tamanho);
-    glVertex3i(-tamanho, -tamanho, -tamanho);
+    glVertex3f(tamanho, -tamanhoY, tamanho);
+    glVertex3f(tamanho, tamanhoY, tamanho);
+    glVertex3f(-tamanho, tamanhoY, tamanho);
+    glVertex3f(-tamanho, -tamanhoY, tamanho);
     glEnd();
-    glPopMatrix();
     
-    
-    
-    
-    //-------------------------Parede Frente----------
-    
-    glPushMatrix();
+    // Lado roxo - DIREITA
+    glBegin(GL_POLYGON);
     glColor4f(WHITE);
-    glTranslated(0, 0, -45);
-    glBegin(GL_QUADS);
-    glVertex3i(-tamanho, tamanho, tamanho);
-    glVertex3i(-tamanho , tamanho, tamanho);
-    glVertex3i(-tamanho , -tamanho, tamanho);
-    glVertex3i(-tamanho, -tamanho, tamanho);
+    glVertex3f(tamanho, -tamanhoY, -tamanho);
+    glVertex3f(tamanho, tamanhoY, -tamanho);
+    glVertex3f(tamanho, tamanhoY, tamanho);
+    glVertex3f(tamanho, -tamanhoY, tamanho);
     glEnd();
-    glPopMatrix();
     
+    // Lado verde - ESQUERDA
+    glBegin(GL_POLYGON);
+    glColor4f(WHITE);
+    glVertex3f(-tamanho, -tamanhoY, tamanho);
+    glVertex3f(-tamanho, tamanhoY, tamanho);
+    glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
+    glVertex3f(-tamanho, -tamanhoY, -tamanho + 70);
+    glEnd();
     
+    glBegin(GL_POLYGON);
+    glColor4f(WHITE);
+    glVertex3f(-tamanho, -tamanhoY, 0);
+    glVertex3f(-tamanho, 0, 0);
+    glVertex3f(-tamanho, 0, -tamanho);
+    glVertex3f(-tamanho, -tamanhoY, -tamanho);
+    glEnd();
     
+    // Lado azul - TOPO
+    glBegin(GL_POLYGON);
+    glColor4f(WHITE);
+    glVertex3f(tamanho, tamanhoY, tamanho);
+    glVertex3f(tamanho, tamanhoY, -tamanho);
+    glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
+    glVertex3f(-tamanho + 70, tamanhoY, tamanho);
+    glEnd();
     
+    glBegin(GL_POLYGON);
+    glColor4f(WHITE);
+    glVertex3f(0, tamanhoY, tamanho);
+    glVertex3f(0, tamanhoY, -tamanho + 70);
+    glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
+    glVertex3f(-tamanho, tamanhoY, tamanho);
+    glEnd();
+    
+    // Lado vermelho - BASE
+    glBegin(GL_POLYGON);
+    glColor4f(WHITE);
+    glVertex3f(tamanho, -tamanhoY, -tamanho);
+    glVertex3f(tamanho, -tamanhoY, tamanho);
+    glVertex3f(-tamanho, -tamanhoY, tamanho);
+    glVertex3f(-tamanho, -tamanhoY, -tamanho);
+    glEnd();
 }
 
+void drawPool()
+{
+    //INFINITY POOL FRONT
+    glBegin(GL_POLYGON);
+    glColor4f(BLUE);
+    glVertex3f(0, -tamanhoY + tamanhoY, -tamanho);
+    glVertex3f(0, tamanhoY, -tamanho);
+    glVertex3f(-tamanho, -tamanho + tamanhoY, -tamanho);
+    glVertex3f(-tamanho, tamanhoY, -tamanho);
+    glEnd();
+    
+    //LEFT SIDE
+    glBegin(GL_POLYGON);
+    glColor4f(BLUE);
+    glVertex3f(-tamanho, -tamanhoY + tamanhoY, 0);
+    glVertex3f(-tamanho, tamanhoY, 0);
+    glVertex3f(-tamanho, tamanhoY, -tamanho);
+    glVertex3f(-tamanho, 0, -tamanho);
+    glEnd();
+    
+    //TOP SIDE
+    glBegin(GL_POLYGON);
+    glColor4f(BLUE);
+    glVertex3f(0, tamanhoY, tamanho - 70);
+    glVertex3f(0, tamanhoY, -tamanho);
+    glVertex3f(-tamanho, tamanhoY, -tamanho);
+    glVertex3f(-tamanho, tamanhoY, tamanho - 70);
+    glEnd();
+}
 
 void drawSkybox()
 {
@@ -208,6 +247,7 @@ void drawScene()
 {
     drawSkybox();
     drawTerrace();
+    drawPool();
 }
 
 void display(void)
@@ -217,8 +257,7 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
     //================================================================= No modificar
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+    
     glViewport(0, 0, wScreen, hScreen);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -270,7 +309,7 @@ void keyboard(unsigned char key, int x, int y)
             obsP[2] = obsP[2] + movimentoZ * 2;
             obsF[0] = obsF[0] + movimentoX * 2;
             obsF[2] = obsF[2] + movimentoZ * 2;
-      
+            
             glutPostRedisplay();
             break;
             //--------------------------- Escape
@@ -293,7 +332,7 @@ void teclasNotAscii(int key, int x, int y)
         aVisao = 0;
     if (key == GLUT_KEY_RIGHT)
         aVisao = (aVisao + 0.05);
-
+    
     if (aVisao < -2 * PI)
         aVisao = 0;
     
