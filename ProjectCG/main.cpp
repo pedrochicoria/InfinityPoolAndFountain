@@ -19,6 +19,8 @@
 
 GLfloat tamanho = 70.0;
 GLfloat tamanhoY = 40.0;
+GLfloat heightstairs = 10;
+GLfloat widthstairs = 10;
 
 //------------------------------------------------------------ Sistema Coordenadas + objectos
 GLint wScreen = 800, hScreen = 600; //.. janela (pixeis)
@@ -34,14 +36,10 @@ GLfloat incZoom = 3;
 GLuint movement = -1; //-1 para fora do edificio | 0  o res de chão | 1 para o primeiro movement
 GLfloat movimentoX, movimentoY, movimentoZ, movimentoNormal;
 
-GLfloat heightstairs = 10;
-GLfloat widthstairs = 10;
-
 void criaDefineTexturas();
 void drawSkybox();
 
 // Função responsável pela especificação dos parâmetros de iluminação
-
 void init(void)
 {
     glClearColor(WHITE);     //Apagar
@@ -52,7 +50,6 @@ void init(void)
     glEnable(GL_COLOR_MATERIAL); // Habilita a definição da cor do material a partir da cor corrente
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
-
 void drawTerrace()
 {
     glTranslated(50, 0, -45);
@@ -247,6 +244,56 @@ void drawSkybox()
     glPopMatrix();
 }
 
+void drawSteps()
+{
+    glColor4f(1, 0, 0, 1);
+
+    // Lado branco - TRASEIRA
+    glBegin(GL_POLYGON);
+
+    glVertex3f(heightstairs, -heightstairs, heightstairs);
+    glVertex3f(heightstairs, heightstairs, heightstairs);
+    glVertex3f(-heightstairs, heightstairs, heightstairs);
+    glVertex3f(-heightstairs, -heightstairs, heightstairs);
+    glEnd();
+
+    // Lado roxo - DIREITA
+    glBegin(GL_POLYGON);
+
+    glVertex3f(heightstairs, -heightstairs, -heightstairs);
+    glVertex3f(heightstairs, heightstairs, -heightstairs);
+    glVertex3f(heightstairs, heightstairs, heightstairs);
+    glVertex3f(heightstairs, -heightstairs, heightstairs);
+    glEnd();
+
+    // Lado verde - ESQUERDA
+    glBegin(GL_POLYGON);
+
+    glVertex3f(-heightstairs, -heightstairs, heightstairs);
+    glVertex3f(-heightstairs, heightstairs, heightstairs);
+    glVertex3f(-heightstairs, heightstairs, -heightstairs);
+    glVertex3f(-heightstairs, -heightstairs, -heightstairs);
+    glEnd();
+
+    // Lado azul - TOPO
+    glBegin(GL_POLYGON);
+
+    glVertex3f(heightstairs, heightstairs, heightstairs);
+    glVertex3f(heightstairs, heightstairs, -heightstairs);
+    glVertex3f(-heightstairs, heightstairs, -heightstairs);
+    glVertex3f(-heightstairs, heightstairs, heightstairs);
+    glEnd();
+
+    // Lado vermelho - BASE
+    glBegin(GL_POLYGON);
+
+    glVertex3f(heightstairs, -heightstairs, -heightstairs);
+    glVertex3f(heightstairs, -heightstairs, heightstairs);
+    glVertex3f(-heightstairs, -heightstairs, heightstairs);
+    glVertex3f(-heightstairs, -heightstairs, -heightstairs);
+    glEnd();
+}
+
 void drawStairs()
 {
 }
@@ -256,6 +303,13 @@ void drawScene()
     drawSkybox();
     drawTerrace();
     drawPool();
+    glPushMatrix();
+
+    glTranslated(tamanho / 2, -tamanhoY, -tamanho - tamanho);
+
+    drawSteps();
+
+    glPopMatrix();
 }
 
 void display(void)
