@@ -2,6 +2,7 @@
 // run with g++ -o main main.cpp -framework OpenGL -framework GLUT
 
 #include <stdlib.h>
+#include <iostream>
 #include <stdio.h>
 #include <math.h>
 #include <OpenGL/gl.h>
@@ -17,8 +18,10 @@
 #define BLACK 0.0, 0.0, 0.0, 1.0
 #define PI 3.14159
 
+using namespace std;
+
 GLfloat tamanho = 70.0;
-GLfloat tamanhoY = 40.0;
+GLfloat tamanhoY = 32.5;
 GLfloat heightstairs = 10;
 GLfloat widthstairs = 10;
 
@@ -52,10 +55,10 @@ void init(void)
 }
 void drawTerrace()
 {
-    glTranslated(50, 0, -45);
+    glTranslated(50, -10, -45);
     //Lado multicolorido - FRENTE
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+    glColor4f(0.8,0.8,0.8,1);
     glVertex3f(tamanho, -tamanhoY, -tamanho);
     glVertex3f(tamanho, tamanhoY, -tamanho);
     glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
@@ -63,7 +66,7 @@ void drawTerrace()
     glEnd();
 
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+     glColor4f(0.8,0.8,0.8,1);
     glVertex3f(0, -tamanhoY, -tamanho);
     glVertex3f(0, 0, -tamanho);
     glVertex3f(-tamanho, 0, -tamanho);
@@ -72,7 +75,7 @@ void drawTerrace()
 
     // Lado branco - TRASEIRA
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+     glColor4f(0.8,0.8,0.8,1);
     glVertex3f(tamanho, -tamanhoY, tamanho);
     glVertex3f(tamanho, tamanhoY, tamanho);
     glVertex3f(-tamanho, tamanhoY, tamanho);
@@ -81,8 +84,8 @@ void drawTerrace()
 
     // Lado roxo - DIREITA
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
-    glVertex3f(tamanho, -tamanhoY, -tamanho);
+ glColor4f(0.8,0.8,0.8,1);
+     glVertex3f(tamanho, -tamanhoY, -tamanho);
     glVertex3f(tamanho, tamanhoY, -tamanho);
     glVertex3f(tamanho, tamanhoY, tamanho);
     glVertex3f(tamanho, -tamanhoY, tamanho);
@@ -90,7 +93,7 @@ void drawTerrace()
 
     // Lado verde - ESQUERDA
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+     glColor4f(0.8,0.8,0.8,1);
     glVertex3f(-tamanho, -tamanhoY, tamanho);
     glVertex3f(-tamanho, tamanhoY, tamanho);
     glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
@@ -98,7 +101,7 @@ void drawTerrace()
     glEnd();
 
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+     glColor4f(0.8,0.8,0.8,1);
     glVertex3f(-tamanho, -tamanhoY, 0);
     glVertex3f(-tamanho, 0, 0);
     glVertex3f(-tamanho, 0, -tamanho);
@@ -107,7 +110,7 @@ void drawTerrace()
 
     // Lado azul - TOPO
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+    glColor4f(0.8,0.8,0.8,1);
     glVertex3f(tamanho, tamanhoY, tamanho);
     glVertex3f(tamanho, tamanhoY, -tamanho);
     glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
@@ -115,7 +118,7 @@ void drawTerrace()
     glEnd();
 
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+     glColor4f(0.8,0.8,0.8,1);
     glVertex3f(0, tamanhoY, tamanho);
     glVertex3f(0, tamanhoY, -tamanho + 70);
     glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
@@ -124,7 +127,7 @@ void drawTerrace()
 
     // Lado vermelho - BASE
     glBegin(GL_POLYGON);
-    glColor4f(WHITE);
+    glColor4f(0.8,0.8,0.8,1);
     glVertex3f(tamanho, -tamanhoY, -tamanho);
     glVertex3f(tamanho, -tamanhoY, tamanho);
     glVertex3f(-tamanho, -tamanhoY, tamanho);
@@ -207,7 +210,7 @@ void drawSkybox()
     //chão
 
     glPushMatrix();
-    glColor4f(GREEN);
+    glColor4f(WHITE);
     glTranslated(0, 0, -45);
     glBegin(GL_QUADS);
     glVertex3i(-800, -tamanhoY - 10, -800);
@@ -246,7 +249,7 @@ void drawSkybox()
 
 void drawSteps()
 {
-    glColor4f(1, 0, 0, 1);
+     glColor4f(0.8,0.8,0.8,1);
 
     // Lado branco - TRASEIRA
     glBegin(GL_POLYGON);
@@ -296,6 +299,112 @@ void drawSteps()
 
 void drawStairs()
 {
+    GLdouble yscale = 0.5;
+    glPushMatrix();
+    glTranslated((-20), -tamanhoY, -tamanho - tamanho-2);
+    glScaled(0.5, yscale, 2);
+
+    drawSteps();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated((-20) + heightstairs, -tamanhoY, -tamanho - tamanho-2);
+    
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(0.5, yscale + 0.5, 2);
+    drawSteps();
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 10, -tamanhoY, -tamanho - tamanho-2);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(0.5, yscale + 1, 2);
+    drawSteps();
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 20, -tamanhoY, -tamanho - tamanho-2);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(0.5, yscale + 1.5, 2);
+    drawSteps();
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated((-20 )+ heightstairs + 30, -tamanhoY, -tamanho - tamanho-1);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(0.5, yscale + 2, 2);
+    drawSteps();
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-1);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale + 2.5, 2);
+    drawSteps();
+
+    glPopMatrix();
+
+
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 25);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +3 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 35);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +3.5 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
+
+ glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 45);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +4 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 55);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +4.5 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
+
+     glPushMatrix();
+    glTranslated((-20 ) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 65);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +5 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
+
+     glPushMatrix();
+    glTranslated((-20) + heightstairs + 55, -tamanhoY, -tamanho - tamanho-heightstairs + 75);
+
+    //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
+    glScaled(2, yscale +5.5 , 0.5);
+    drawSteps();
+
+    glPopMatrix();
 }
 
 void drawScene()
@@ -303,13 +412,10 @@ void drawScene()
     drawSkybox();
     drawTerrace();
     drawPool();
-    glPushMatrix();
-
-    glTranslated(tamanho / 2, -tamanhoY, -tamanho - tamanho);
-
-    drawSteps();
-
-    glPopMatrix();
+    //glPushMatrix();
+   // glTranslated((tamanho /4), -tamanhoY, -tamanho - tamanho);
+    drawStairs();
+    //glPopMatrix();
 }
 
 void display(void)
