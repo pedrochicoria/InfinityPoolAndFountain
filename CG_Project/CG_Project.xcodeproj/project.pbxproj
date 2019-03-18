@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED5D93C7223FED720033B6CF /* RgbImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ED5D93C5223FED720033B6CF /* RgbImage.cpp */; };
 		EDD0BC1F223FA56D00221D6D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDD0BC1E223FA56D00221D6D /* main.cpp */; };
+		EDF6D5AF223FEEBE00A213FF /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDF6D5AD223FEEBE00A213FF /* OpenGL.framework */; };
+		EDF6D5B0223FEEBE00A213FF /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDF6D5AE223FEEBE00A213FF /* GLUT.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +26,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED5D93C4223FED720033B6CF /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturas; sourceTree = "<group>"; };
+		ED5D93C5223FED720033B6CF /* RgbImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RgbImage.cpp; sourceTree = "<group>"; };
+		ED5D93C6223FED720033B6CF /* RgbImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RgbImage.h; sourceTree = "<group>"; };
 		EDD0BC1B223FA56D00221D6D /* CG_Project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CG_Project; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDD0BC1E223FA56D00221D6D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		EDF6D5AD223FEEBE00A213FF /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		EDF6D5AE223FEEBE00A213FF /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +40,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDF6D5AF223FEEBE00A213FF /* OpenGL.framework in Frameworks */,
+				EDF6D5B0223FEEBE00A213FF /* GLUT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +53,7 @@
 			children = (
 				EDD0BC1D223FA56D00221D6D /* CG_Project */,
 				EDD0BC1C223FA56D00221D6D /* Products */,
+				EDF6D5AC223FEEBE00A213FF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +68,21 @@
 		EDD0BC1D223FA56D00221D6D /* CG_Project */ = {
 			isa = PBXGroup;
 			children = (
+				ED5D93C5223FED720033B6CF /* RgbImage.cpp */,
+				ED5D93C6223FED720033B6CF /* RgbImage.h */,
+				ED5D93C4223FED720033B6CF /* texturas */,
 				EDD0BC1E223FA56D00221D6D /* main.cpp */,
 			);
 			path = CG_Project;
+			sourceTree = "<group>";
+		};
+		EDF6D5AC223FEEBE00A213FF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EDF6D5AE223FEEBE00A213FF /* GLUT.framework */,
+				EDF6D5AD223FEEBE00A213FF /* OpenGL.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDD0BC1F223FA56D00221D6D /* main.cpp in Sources */,
+				ED5D93C7223FED720033B6CF /* RgbImage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,6 +264,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,6 +273,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
