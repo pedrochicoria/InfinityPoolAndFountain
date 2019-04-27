@@ -3,138 +3,64 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+#include "materiais.h"
 #include <OpenGL/gl.h>
 #include <OpenGl/glu.h>
 #include <GLUT/glut.h>
-#include "materiais.h"
-#include "RgbImage.h"
-#define   PI 3.14159
 
-//------------------------------------------------------------ Sistema Coordenadas
-GLfloat  xC=16.0, zC=15.0;
-GLint    wScreen=800, hScreen=500;
-char     texto[30];
-GLint    msec     = 100;
+//Image loader
+#include "RgbImage.h"
+
+//Global variables
+#define PI 3.14159
+
+using namespace std;
+
+GLfloat tamanho = 70.0;
+GLfloat tamanhoY = 32.5;
+GLfloat heightstairs = 10;
+GLfloat widthstairs = 10;
+
+//------------------------------------------------------------ Sistema Coordenadas + objectos
+GLint wScreen = 800, hScreen = 600; //.. janela (pixeis)
+GLuint height = 600, width = 600;
+GLfloat xC = 15.0, yC = 15.0, zC = 70.0; //.. Mundo  (unidades mundo)
+
+GLUquadricObj*  sky  = gluNewQuadric ( );
+GLfloat         sizeSky  = 250;
 
 //------------------------------------------------------------ Observador
-GLfloat  rVisao=3.0, aVisao=0.5*PI, incVisao=0.1;
-GLfloat  angPersp=109.0;
-GLfloat  obsPini[] ={-8, -3.0, -14.0};
-GLfloat  obsPfin[] ={obsPini[0]-rVisao*cos(aVisao), obsPini[1], obsPini[2]-rVisao*sin(aVisao)};
-
-//------------------------------------------------------------ Skybox
-GLUquadricObj*  sky  = gluNewQuadric ( );
-GLfloat         sizeSky  = 30;
-
-//------------------------------------------------------------ Texturas
-GLuint   texture[10];
-RgbImage imag;
-
-//------------------------------------------------------------ Mateirais
-GLint material=10;
-
-//------------------------------------------------------------ Iluminacao Ambiente
-GLint   dia=0;
-GLfloat intensidade=10.0;
-GLfloat luzGlobalCorAmb[4]={intensidade,intensidade,intensidade,1.0};
-
-//------------------------------------------------------------ Lanterna (local) - FOCO
 GLint   ligaFoco=0;
+GLfloat rVisao = 20, aVisao = PI + PI / 2, incVisao = 0.05;
+GLfloat obsPini[] = {-150, 0, -150}; //estava a 320
+GLfloat  obsPfin[] ={obsPini[0]-rVisao*cos(aVisao), obsPini[1], obsPini[2]-rVisao*sin(aVisao)};
+GLfloat  angPersp=109.0;
 GLfloat rFoco=1.1, aFoco=aVisao;
-GLfloat incH =0.0, incV=0.0;
-GLfloat incMaxH =0.5, incMaxV=0.35;
 GLfloat focoPini[]= { obsPini[0], obsPini[1], obsPini[2], 1.0 };
 GLfloat focoPfin[]= { obsPini[0]-rFoco*cos(aFoco), obsPini[1], obsPini[2]-rFoco*sin(aFoco), 1.0};
 GLfloat focoDir[] = { focoPfin[0]-focoPini[0], 0, focoPfin[2]-focoPini[2]};
 GLfloat focoExp   = 10.0;
 GLfloat focoCut   = 60.0;
+GLfloat angZoom = 80;
+GLfloat incZoom = 3;
+GLuint movement = -1; //-1 para fora do edificio | 0  o res de chão | 1 para o primeiro movement
+GLfloat incH =0.0, incV=0.0;
+GLfloat incMaxH =0.5, incMaxV=0.35;
+
+GLuint  texture[14];
+GLuint  tex;
+RgbImage imag;
+//------------------------------------------------------------ Iluminacao Ambiente
+GLint   night = 0;
+GLfloat intensidade=10.0;
+GLfloat lightColorGlobal[4] = { 0.3,0.3,0.3,1.0 };
 
 GLfloat focoCorDif[4] ={ 0.9, 0.9, 0.9, 1.0};
 GLfloat focoCorEsp[4] ={ 1.0, 1.0, 1.0, 1.0};
-
-//------------------------------------------------------------ Variaveis globais
-GLfloat tamanho = 7.0;
-GLfloat tamanhoY = 3;
-GLfloat heightstairs = 1;
-GLfloat widthstairs = 1;
-
-//------------------------------------------------------------ Declaração e inicialização das texturas
-void initTexturas(){
-    //----------------------------------------- SkyBox
-    glGenTextures(1, &texture[0]);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/skyBox.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    //----------------------------------------- Chao
-    glGenTextures(1, &texture[1]);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/grass.bmp");
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    //----------------------------------------- Paredes da piscina
-    glGenTextures(1, &texture[3]);
-    glBindTexture(GL_TEXTURE_2D, texture[2]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/pool.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-    //----------------------------------------- Agua da piscina
-    glGenTextures(1, &texture[4]);
-    glBindTexture(GL_TEXTURE_2D, texture[3]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/water.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-    
-   //----------------------------------------- Paredes da casa
-    glGenTextures(1, &texture[5]);
-    glBindTexture(GL_TEXTURE_2D, texture[4]);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/wall.bmp");
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
-                 imag.GetNumCols(),
-                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 imag.ImageData());
-}
-
 //------------------------------------------------------------ ILUMINACAO
 void initLights(void){
     //…………………………………………………………………………………………………………………………………………… Ambiente
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzGlobalCorAmb);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightColorGlobal);
 
     //…………………………………………………………………………………………………………………………………………… Foco
     glLightfv(GL_LIGHT1, GL_POSITION,      focoPini );
@@ -151,7 +77,6 @@ void initLights(void){
     
 }
 
-//------------------------------------------------------------ MATERIAIS
 void initMaterials(int material) {
     
     switch (material){
@@ -164,39 +89,144 @@ void initMaterials(int material) {
     }
 }
 
-//------------------------------------------------------------ SkyBox
+void initTexturas(){
+    //=======================================Floor
+    glGenTextures(1, &texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/grass.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    
+    // SKY
+     //----------------------------------------- SkyBox
+    glGenTextures(1, &texture[1]);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/skyBox.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    // SKY
+    glGenTextures(1, &texture[2]);
+    glBindTexture(GL_TEXTURE_2D, texture[2]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/pool.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    
+    
+    // SKY
+    glGenTextures(1, &texture[4]);
+    glBindTexture(GL_TEXTURE_2D, texture[4]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/water.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    
+    //=======================================Parede casa
+    glGenTextures(1, &texture[5]);
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/wall.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    
+    //=======================================Parede casa
+    glGenTextures(1, &texture[6]);
+    glBindTexture(GL_TEXTURE_2D, texture[6]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/marble.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    //=======================================Parede casa
+    glGenTextures(1, &texture[7]);
+    glBindTexture(GL_TEXTURE_2D, texture[7]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/madeira.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+    
+  
+
+ 
+
+}
+
 void drawSkySphere(){
     
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture(GL_TEXTURE_2D,texture[0]);
+    glBindTexture(GL_TEXTURE_2D,texture[1]);
     initMaterials(0);
     
     glPushMatrix();
-    glRotatef (       90, -1, 0, 0);
+    glRotatef (90, -1, 0, 0);
     gluQuadricDrawStyle ( sky, GLU_FILL   );
     gluQuadricNormals   ( sky, GLU_SMOOTH );
     gluQuadricTexture   ( sky, GL_TRUE    );
-    gluSphere ( sky, sizeSky*1, 150, 150);
+    gluSphere ( sky, sizeSky*5, 250, 250);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
 
-void drawTerrace(){
+void drawTerrace()
+{
+    glTranslated(50, -10, -45);
+    glDisable(GL_TEXTURE_2D);
+
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[4]);
-    initMaterials(0);
-    
-    glPushMatrix();
-    glTranslatef (-4.0, -3.0, 4);
-    
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
+    //Lado multicolorido - FRENTE
     glBegin(GL_POLYGON);
     glTexCoord2f(1.0f, 0.0f); glVertex3f(tamanho, -tamanhoY, -tamanho);
     glTexCoord2f(1.0f, 1.0f); glVertex3f(tamanho, tamanhoY, -tamanho);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(-tamanho + 7.0, tamanhoY, -tamanho);
-    glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho + 7.0, -tamanhoY, -tamanho);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
+    glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho + 70, -tamanhoY, -tamanho);
     glEnd();
     
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
     glBegin(GL_POLYGON);
     glTexCoord2f(0.0f, 0.5f); glVertex3f(0, -tamanhoY, -tamanho);
     glTexCoord2f(0.0f, 0.0f); glVertex3f(0, 0, -tamanho);
@@ -204,6 +234,8 @@ void drawTerrace(){
     glTexCoord2f(0.5f, 0.5f); glVertex3f(-tamanho, -tamanhoY, -tamanho);
     glEnd();
     
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
+    // Lado branco - TRASEIRA
     glBegin(GL_POLYGON);
     glTexCoord2f(1.0f, 0.0f);glVertex3f(tamanho, -tamanhoY, tamanho);
     glTexCoord2f(1.0f, 1.0f);glVertex3f(tamanho, tamanhoY, tamanho);
@@ -211,6 +243,8 @@ void drawTerrace(){
     glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho, -tamanhoY, tamanho);
     glEnd();
     
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
+    // Lado roxo - DIREITA
     glBegin(GL_POLYGON);
     glTexCoord2f(0.0f, 1.0f);glVertex3f(tamanho, -tamanhoY, -tamanho);
     glTexCoord2f(0.0f, 0.0f);glVertex3f(tamanho, tamanhoY, -tamanho);
@@ -218,13 +252,16 @@ void drawTerrace(){
     glTexCoord2f(1.0f, 1.0f);glVertex3f(tamanho, -tamanhoY, tamanho);
     glEnd();
     
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
+    // Lado verde - ESQUERDA
     glBegin(GL_POLYGON);
     glTexCoord2f(1.0f, 0.0f);glVertex3f(-tamanho, -tamanhoY, tamanho);
     glTexCoord2f(1.0f, 1.0f);glVertex3f(-tamanho, tamanhoY, tamanho);
-    glTexCoord2f(0.0f, 1.0f);glVertex3f(-tamanho, tamanhoY, -tamanho + 7.0);
-    glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho, -tamanhoY, -tamanho + 7.0);
+    glTexCoord2f(0.0f, 1.0f);glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
+    glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho, -tamanhoY, -tamanho + 70);
     glEnd();
     
+    glBindTexture(GL_TEXTURE_2D, texture[5]);
     glBegin(GL_POLYGON);
     glTexCoord2f(0.5f, 0.0f);glVertex3f(-tamanho, -tamanhoY, 0);
     glTexCoord2f(0.5f, 0.5f);glVertex3f(-tamanho, 0, 0);
@@ -232,125 +269,159 @@ void drawTerrace(){
     glTexCoord2f(0.0f, 0.0f);glVertex3f(-tamanho, -tamanhoY, -tamanho);
     glEnd();
     
+    // Lado azul - TOPO
     glBegin(GL_POLYGON);
     glVertex3f(tamanho, tamanhoY, tamanho);
     glVertex3f(tamanho, tamanhoY, -tamanho);
-    glVertex3f(-tamanho + 7.0, tamanhoY, -tamanho);
-    glVertex3f(-tamanho + 7.0, tamanhoY, tamanho);
+    glVertex3f(-tamanho + 70, tamanhoY, -tamanho);
+    glVertex3f(-tamanho + 70, tamanhoY, tamanho);
     glEnd();
     
     glBegin(GL_POLYGON);
     glVertex3f(0, tamanhoY, tamanho);
-    glVertex3f(0, tamanhoY, -tamanho + 7.0);
-    glVertex3f(-tamanho, tamanhoY, -tamanho + 7.0);
+    glVertex3f(0, tamanhoY, -tamanho + 70);
+    glVertex3f(-tamanho, tamanhoY, -tamanho + 70);
     glVertex3f(-tamanho, tamanhoY, tamanho);
     glEnd();
-
+    
+    // Lado vermelho - BASE
     glBegin(GL_POLYGON);
     glVertex3f(tamanho, -tamanhoY, -tamanho);
     glVertex3f(tamanho, -tamanhoY, tamanho);
     glVertex3f(-tamanho, -tamanhoY, tamanho);
     glVertex3f(-tamanho, -tamanhoY, -tamanho);
     glEnd();
-    
-    glPopMatrix();
     glDisable(GL_TEXTURE_2D);
+    
 }
 
-//------------------------------------------------------------ Pool
 void drawPool(){
+ 
    
     
-    glPushMatrix();
+    //TRASEIRA
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture[2]);
-    initMaterials(0);
-    glTranslatef (-4.0, -3.0, 4);
-    
     glBegin(GL_POLYGON);
-    glTexCoord2f(1.0f, 0.0f); glVertex3f(-tamanho, -tamanhoY + tamanhoY, 0);
-    glTexCoord2f(1.0f, 1.0f); glVertex3f(-tamanho, tamanhoY, 0);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f( 0, tamanhoY, 0);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f( 0, -tamanhoY + tamanhoY, 0);
+    
+    // Back Face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-tamanho, -tamanhoY + tamanhoY, 0);    // Bottom Right
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-tamanho, tamanhoY, 0);    // Top Right
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 0, tamanhoY, 0);    // Top Left
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 0, -tamanhoY + tamanhoY, 0);    // Bottom Left
     glEnd();
+    glDisable(GL_TEXTURE_2D);
+    
+   
+    
+    
+    
+    //RIGHT SIDE
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[2]);
     
     glBegin(GL_POLYGON);
-    glTexCoord2f(0.0f, 0.0f); glVertex3f(0, 0, 0);
+    
+   glTexCoord2f(0.0f, 0.0f); glVertex3f(0, 0, 0);
     glTexCoord2f(1.0f, 0.0f);glVertex3f(0, tamanhoY, 0);
     glTexCoord2f(1.0f, 1.0f);glVertex3f(0, tamanhoY, -tamanho);
-    glTexCoord2f(0.0f, 1.0f); glVertex3f(0, 0, -tamanho);
+   glTexCoord2f(0.0f, 1.0f); glVertex3f(0, 0, -tamanho);
     glEnd();
-   
-    glBindTexture(GL_TEXTURE_2D, texture[3]);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
+    //TOP SIDE
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[4]);
+    
     glBegin(GL_POLYGON);
     glTexCoord2f(0.0f, 1.0f); glVertex3i(-tamanho, tamanhoY, -tamanho);
     glTexCoord2f(0.0f, 0.0f); glVertex3i(-tamanho, tamanhoY, 0);
     glTexCoord2f(1.0f, 0.0f); glVertex3i(0, tamanhoY, 0);
     glTexCoord2f(1.0f, 1.0f); glVertex3i(0, tamanhoY, -tamanho);
+    
+    
     glEnd();
     
-    glBegin(GL_POLYGON);
-    glTexCoord2f(0.0f, 0.0f);glVertex3f(0, 0, tamanho - 7.0);
-    glTexCoord2f(1.0f, 0.0f);glVertex3f(0, 0, -tamanho);
-    glTexCoord2f(1.0f, 1.0f);glVertex3f(-tamanho, 0, -tamanho);
-    glTexCoord2f(0.0f, 1.0f);glVertex3f(-tamanho, 0, tamanho - 7.0);
-    glEnd();
-
     glDisable(GL_TEXTURE_2D);
-
+    
+    //DOWN SIDE
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[2]);
+    glBegin(GL_POLYGON);
+     glTexCoord2f(0.0f, 0.0f);glVertex3f(0, 0, tamanho - 70);
+    glTexCoord2f(1.0f, 0.0f);glVertex3f(0, 0, -tamanho);
+     glTexCoord2f(1.0f, 1.0f);glVertex3f(-tamanho, 0, -tamanho);
+    glTexCoord2f(0.0f, 1.0f);glVertex3f(-tamanho, 0, tamanho - 70);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    
+    //INFINITY POOL FRONT
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.93, 0.93, 0.95,0.2);
-    
+    glColor4f(0,0.81,0.82,0.1);
     glBegin(GL_POLYGON);
-    glVertex3i(-tamanho, 0, -tamanho);
-    glVertex3i(0, 0, -tamanho);
-    glVertex3i(0, tamanhoY, -tamanho);
-    glVertex3i(-tamanho, tamanhoY, -tamanho);
+    glTexCoord2f(0.0f, 0.0f); glVertex3i(-tamanho, 0, -tamanho);
+    glTexCoord2f(1.0f, 0.0f); glVertex3i(0, 0, -tamanho);
+    glTexCoord2f(1.0f, 1.0f); glVertex3i(0, tamanhoY, -tamanho);
+    glTexCoord2f(0.0f, 1.0f); glVertex3i(-tamanho, tamanhoY, -tamanho);
     glEnd();
-    
+    glDisable(GL_BLEND);
+
+    //LEFT SIDE
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0.81,0.82,0.1);
     glBegin(GL_POLYGON);
+    
     glVertex3i(-tamanho, 0, 0);
     glVertex3i(-tamanho, tamanhoY, 0);
     glVertex3i(-tamanho, tamanhoY, -tamanho);
     glVertex3i(-tamanho, 0, -tamanho);
     glEnd();
     
-    glPopMatrix();
-    glBlendFunc(GL_ONE, GL_ZERO);
-    
-
+    glDisable(GL_BLEND);
 }
-//------------------------------------------------------------ CHAO
-void drawChao(){
+
+void drawSkybox()
+{
+   
+    //chão
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture(GL_TEXTURE_2D,texture[1]);
+    glBindTexture(GL_TEXTURE_2D,texture[0]);
     initMaterials(0);
     
     glPushMatrix();
-    glTranslatef(0,-5,0);
-    
+    glTranslated(0, 0, -45);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0f,0.0f); glVertex3i( -xC, 0, -xC );
-    glTexCoord2f(1.0, 0.0);  glVertex3i( -xC, 0,  xC );
-    glTexCoord2f(1.0, 1.0);  glVertex3i(  xC, 0,  xC);
-    glTexCoord2f(0.0, 1.0);  glVertex3i(  xC, 0,  -xC);
+    glTexCoord2f(0.0f, 0.0f); glVertex3i(-250, -tamanhoY - 10, -250);
+    glTexCoord2f(1.0f, 0.0f); glVertex3i(-250, -tamanhoY - 10, 250);
+    glTexCoord2f(1.0f, 1.0f); glVertex3i(250, -tamanhoY - 10, 250);
+    glTexCoord2f(0.0f, 1.0f); glVertex3i(250, -tamanhoY - 10, -250);
     glEnd();
-    
     glPopMatrix();
+    
     glDisable(GL_TEXTURE_2D);
+    
+    
+    
+    
+   
+
+
+    
 }
 
-//------------------------------------------------------------ Escadas
-void drawSteps(){
+void drawSteps()
+{
     glEnable(GL_TEXTURE_2D);
     
     // Lado branco - TRASEIRA
     glBindTexture(GL_TEXTURE_2D, texture[6]);
     glBegin(GL_POLYGON);
     
-    glTexCoord2f(0.0f, 1.0f);glVertex3f(heightstairs, -heightstairs, heightstairs);
+     glTexCoord2f(0.0f, 1.0f);glVertex3f(heightstairs, -heightstairs, heightstairs);
     glTexCoord2f(0.0f, 0.0f);glVertex3f(heightstairs, heightstairs, heightstairs);
     glTexCoord2f(1.0f, 0.0f);glVertex3f(-heightstairs, heightstairs, heightstairs);
     glTexCoord2f(1.0f, 1.0f);glVertex3f(-heightstairs, -heightstairs, heightstairs);
@@ -375,7 +446,7 @@ void drawSteps(){
     glTexCoord2f(0.0f, 1.0f);glVertex3f(-heightstairs, -heightstairs, heightstairs);
     glTexCoord2f(0.0f, 0.0f);glVertex3f(-heightstairs, heightstairs, heightstairs);
     glTexCoord2f(1.0f, 0.0f);glVertex3f(-heightstairs, heightstairs, -heightstairs);
-    glTexCoord2f(1.0f, 1.0f);glVertex3f(-heightstairs, -heightstairs, -heightstairs);
+     glTexCoord2f(1.0f, 1.0f);glVertex3f(-heightstairs, -heightstairs, -heightstairs);
     glEnd();
     
     glBindTexture(GL_TEXTURE_2D, texture[7]);
@@ -387,7 +458,7 @@ void drawSteps(){
     glTexCoord2f(1.0f, 1.0f);glVertex3f(-heightstairs, heightstairs, -heightstairs);
     glTexCoord2f(0.0f, 1.0f);glVertex3f(-heightstairs, heightstairs, heightstairs);
     glEnd();
-    
+ 
     // Lado vermelho - BASE
     glBegin(GL_POLYGON);
     
@@ -396,7 +467,7 @@ void drawSteps(){
     glVertex3f(-heightstairs, -heightstairs, heightstairs);
     glVertex3f(-heightstairs, -heightstairs, -heightstairs);
     glEnd();
-    
+   
     glBindTexture(GL_TEXTURE_2D, texture[6]);
     glBegin(GL_POLYGON);
     
@@ -407,9 +478,8 @@ void drawSteps(){
     glEnd();
 }
 
-//------------------------------------------------------------ Escadas
-
-void drawStairs(){
+void drawStairs()
+{
     GLdouble yscale = 0.5;
     glPushMatrix();
     glTranslated((-20), -tamanhoY, -tamanho - tamanho - 2);
@@ -512,135 +582,39 @@ void drawStairs(){
     //glTranslated((tamanho / 2) + heightstairs, -tamanhoY, -tamanho - tamanho);
     glScaled(2, yscale + 5.5, 0.5);
     drawSteps();
-}
     
-//------------------------------------------------------------ INICIALIZACOES
-void init(void) {
-    glClearColor(1,1,1,1);
-    glShadeModel(GL_SMOOTH);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_NORMALIZE);
-    
-    //…………………………………………………………………………………………………………………………… ILUMINACAO
-    glEnable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);    // dos dois lados
-    
-    initTexturas();
-    initLights();
-    initMaterials(0);
-}
-
-
-//------------------------------------------------------------ Side text
-void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z){
-    glRasterPos3f(x,y,z);
-    while(*string)
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *string++);
-}
-
-//------------------------------------------------------------ Resize
-GLvoid resize(GLsizei width, GLsizei height){
-    wScreen=width;
-    hScreen=height;
-    glViewport( 0, 0, wScreen,hScreen );
-    glutPostRedisplay();
-}
-
-//------------------------------------------------------------ Eixos
-void drawOrientacao(){
-    
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
-    
-    //----------------------- OBSERVADOR
-    glPushMatrix();
-    glColor4f(0,1,0,1);
-    glTranslatef (obsPini[0],obsPini[1],obsPini[2]);
-    glutSolidCube(1);
     glPopMatrix();
-    glPushMatrix();
-    glColor4f(0,0,1,1);
-    glTranslatef (obsPfin[0],obsPfin[1],obsPfin[2]);
-    glutSolidCube(1.0);
-    glPopMatrix();
-    
-    glPushMatrix();
-    glColor4f(0,0,0,1);
-    glTranslatef (focoPfin[0],focoPfin[1],focoPfin[2]);
-    glutSolidCube(0.75);
-    glPopMatrix();
-    glEnable(GL_LIGHTING);
-    
-    //----------------------- EIXOS
-    glColor4f(1,1,0,1);
-    glBegin(GL_LINES);
-    glVertex3i(0,0,-xC);
-    glVertex3i(0,0, xC);
-    glEnd();
-    glColor4f(1,1,0,1);
-    glBegin(GL_LINES);
-    glVertex3i(0,-xC,0);
-    glVertex3i(0, xC,0);
-    glEnd();
-    glColor4f(1,1,0,1);
-    glBegin(GL_LINES);
-    glVertex3i(-xC,0,0);
-    glVertex3i( xC,0,0);
-    glEnd();
-    glEnable(GL_LIGHTING);
 }
 
-//------------------------------------------------------------ Informação dos comandos
-void showInformacao(){
-    glDisable(GL_LIGHTING);
-    glColor4f(1,0,0.4,1);
-    sprintf(texto, "%d - Foco        'F'  ", ligaFoco);
-    desenhaTexto(texto,-12,1,-10);
-    sprintf(texto, "%f - Ambiente        'L'  ", intensidade);
-    desenhaTexto(texto,-12,1,-5);
-    glEnable(GL_LIGHTING);
+void drawScene(){
+
+    drawSkybox();
+    drawSkySphere();
+    drawTerrace();
+    drawStairs();
+    drawPool();
 }
 
-//------------------------------------------------------------ Display
 void display(void){
     glClearColor(0.8,0.8,0.8,1.0);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    
-    //================================================================= Viewport1
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glViewport (0, hScreen/4, wScreen/6, hScreen/5);
+
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_LIGHTING);  
+    glViewport(0, 0, wScreen, hScreen);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho (-xC,xC, -xC,xC, -zC,zC);
+    gluPerspective(angPersp, (float)wScreen / hScreen, 0.1, 100 *zC);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt( 0, 5,0, 0,0,0, 0, 0, -1);
     
-    //--------------------- desenha objectos
-    //drawTerrace();
-    drawOrientacao();
-    showInformacao();
-    //drawPool();
-    
-    //================================================================= Viewport2
-    glEnable(GL_LIGHTING);
-    glViewport (wScreen/5, 0, 0.75*wScreen, hScreen);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(angPersp, (float)wScreen/hScreen, 0.1, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+
     gluLookAt(obsPini[0], obsPini[1], obsPini[2], obsPfin[0], obsPfin[1], obsPfin[2], 0, 1, 0);
     
-    initLights();
-    drawTerrace();
-    drawChao();
-    drawSkySphere();
-    //drawStairs();
-    drawPool();
-
+    
+    drawScene();
     glutSwapBuffers();
 }
 
@@ -662,7 +636,6 @@ void updateVisao(){
     
     glutPostRedisplay();
 }
-
 //------------------------------------------------------------ EVENTOS
 void keyboard(unsigned char key, int x, int y){
     switch (key) {
@@ -702,15 +675,21 @@ void keyboard(unsigned char key, int x, int y){
             
         case 'l':
         case 'L':
-            if(intensidade==0){
-                intensidade=10.0;
+      		night = !night;
 
-            }
-            else{
-                intensidade=0;
-            }
-            glutPostRedisplay();
-            break;
+		if (night)
+		{
+			lightColorGlobal[0] = 1.0;   lightColorGlobal[1] = 1.0;   lightColorGlobal[2] = 1.0;
+		}
+
+		else
+		{
+			lightColorGlobal[0] = intensidade;   lightColorGlobal[1] = intensidade;   lightColorGlobal[2] = intensidade;
+		}
+
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightColorGlobal);
+		glutPostRedisplay();
+		break;
             
             //=============================================
             //--------------------------- Angulo
@@ -745,12 +724,12 @@ void keyboard(unsigned char key, int x, int y){
 
 void teclasNotAscii(int key, int x, int y){
     if(key == GLUT_KEY_UP) {
-        obsPini[0]=obsPini[0]+incVisao*cos(aVisao);
-        obsPini[2]=obsPini[2]-incVisao*sin(aVisao);
+        obsPini[0]=obsPini[0]+20*incVisao*cos(aVisao);
+        obsPini[2]=obsPini[2]-20*incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_DOWN) {
-        obsPini[0]=obsPini[0]-incVisao*cos(aVisao);
-        obsPini[2]=obsPini[2]+incVisao*sin(aVisao);
+        obsPini[0]=obsPini[0]-20*incVisao*cos(aVisao);
+        obsPini[2]=obsPini[2]+20*incVisao*sin(aVisao);
     }
     if(key == GLUT_KEY_LEFT) {
         aVisao = (aVisao + 0.1) ;
@@ -765,31 +744,44 @@ void teclasNotAscii(int key, int x, int y){
 }
 
 
-void Timer(int value){
+
+
+void idle(void)
+{
     glutPostRedisplay();
-    glutTimerFunc(msec,Timer, 1);
 }
 
 
-//------------------------------------------------------------ MAIN
-int main(int argc, char** argv){
+//------------------------------------------------------------ INICIALIZACOES
+void init(void) {
+    glClearColor(1,1,1,1);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_NORMALIZE);
+    
+    //…………………………………………………………………………………………………………………………… ILUMINACAO
+    glEnable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);    // dos dois lados
+    
+    initTexturas();
+    initLights();
+    initMaterials(0);
+}
+
+int main(int argc, char **argv){
     
     glutInit(&argc, argv);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
-    glutInitWindowSize (wScreen, hScreen);
-    glutInitWindowPosition (400, 10);
-    glutCreateWindow ("Projecto CG 2019");
-    
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(wScreen, hScreen);
+    glutInitWindowPosition(300, 100);
+    glutCreateWindow(" Projeto Computação Gráfica ");
     init();
     glutSpecialFunc(teclasNotAscii);
-    glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
-    glutTimerFunc(msec, Timer, 1);
-    
+    glutIdleFunc(display);
     glutMainLoop();
-    
     return 0;
 }
-
-
