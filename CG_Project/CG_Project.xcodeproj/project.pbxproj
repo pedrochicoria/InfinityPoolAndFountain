@@ -26,6 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C160836A2256463C0031A851 /* materiais.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = materiais.h; sourceTree = "<group>"; };
 		ED5D93C4223FED720033B6CF /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturas; sourceTree = "<group>"; };
 		ED5D93C5223FED720033B6CF /* RgbImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RgbImage.cpp; sourceTree = "<group>"; };
 		ED5D93C6223FED720033B6CF /* RgbImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RgbImage.h; sourceTree = "<group>"; };
@@ -72,6 +73,7 @@
 				ED5D93C6223FED720033B6CF /* RgbImage.h */,
 				ED5D93C4223FED720033B6CF /* texturas */,
 				EDD0BC1E223FA56D00221D6D /* main.cpp */,
+				C160836A2256463C0031A851 /* materiais.h */,
 			);
 			path = CG_Project;
 			sourceTree = "<group>";
