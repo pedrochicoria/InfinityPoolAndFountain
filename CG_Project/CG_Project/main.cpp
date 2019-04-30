@@ -32,8 +32,10 @@ GLfloat         sizeSky  = 250;
 
 //------------------------------------------------------------ Observador
 GLint   ligaFoco=0;
+GLint   ligaPoll=0;
+GLint   ligaEscadas=0;
 GLfloat rVisao = 20, aVisao = PI + PI / 2, incVisao = 0.05;
-GLfloat obsPini[] = {-150, 0, -150}; //estava a 320
+GLfloat obsPini[] = {-120, 0, -150}; //estava a 320
 GLfloat  obsPfin[] ={obsPini[0]-rVisao*cos(aVisao), obsPini[1], obsPini[2]-rVisao*sin(aVisao)};
 GLfloat  angPersp=109.0;
 GLfloat rFoco=1.1, aFoco=aVisao;
@@ -60,6 +62,12 @@ GLfloat lightColorGlobal[4] = { 0.1,0.1,0.1,1.0 };
 GLfloat focoCorDif[4] ={ 0.9, 0.9, 0.9, 1.0};
 GLfloat focoCorEsp[4] ={ 1.0, 1.0, 1.0, 1.0};
 
+GLfloat light2_position[] = { -101.823, -1, -123.3, 1.0 };
+GLfloat light2_dir[] = { 0.980331, -0.03, 0.5 };
+GLfloat light2_focoCorEsp[4] ={ 5.0, 5.0, 5.0, 1.0};
+
+GLfloat light3_position[] = { -22.3496, -4, -265.98, 1.0 };
+GLfloat light3_dir[] = { 0.665709, -0.05, 0.875702 };
 //------------------------------------------------------------ ILUMINACAO
 void initLights(void){
     //…………………………………………………………………………………………………………………………………………… Ambiente
@@ -73,12 +81,39 @@ void initLights(void){
     glLightfv(GL_LIGHT1, GL_DIFFUSE,       focoCorDif );
     glLightfv(GL_LIGHT1, GL_SPECULAR,      focoCorEsp  );
     glLightfv(GL_LIGHT1, GL_AMBIENT,      focoCorEsp  );
-
+    
+    glLightfv(GL_LIGHT2, GL_POSITION,      light2_position );
+    glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION,light2_dir );
+    glLightf (GL_LIGHT2, GL_SPOT_EXPONENT ,focoExp);
+    glLightf (GL_LIGHT2, GL_SPOT_CUTOFF,   focoCut);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE,       focoCorDif );
+    glLightfv(GL_LIGHT2, GL_SPECULAR,      light2_focoCorEsp  );
+    glLightfv(GL_LIGHT2, GL_AMBIENT,      light2_focoCorEsp  );
+    
+    glLightfv(GL_LIGHT3, GL_POSITION,      light3_position );
+    glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION,light3_dir );
+    glLightf (GL_LIGHT3, GL_SPOT_EXPONENT ,focoExp);
+    glLightf (GL_LIGHT3, GL_SPOT_CUTOFF,   focoCut);
+    glLightfv(GL_LIGHT3, GL_DIFFUSE,       focoCorDif );
+    glLightfv(GL_LIGHT3, GL_SPECULAR,      light2_focoCorEsp  );
+    glLightfv(GL_LIGHT3, GL_AMBIENT,      light2_focoCorEsp  );
+    
     if (ligaFoco)
         glEnable(GL_LIGHT1);
     else
         glDisable(GL_LIGHT1);
     
+    if (ligaPoll) {
+        glEnable(GL_LIGHT2);
+    } else {
+        glDisable(GL_LIGHT2);
+    }
+    
+    if (ligaEscadas) {
+        glEnable(GL_LIGHT3);
+    } else {
+        glDisable(GL_LIGHT3);
+    }
 }
 
 void initMaterials(int material) {
@@ -650,7 +685,10 @@ void updateVisao(){
     focoDir[0] =focoPfin[0]-focoPini[0];
     focoDir[1] =incV;
     focoDir[2] =focoPfin[2]-focoPini[2];
-    
+    cout<<"pos:"<<endl;
+    cout<<obsPini[0]<<","<<obsPini[1]<<","<<obsPini[2]<<endl;
+    cout<<"dir:"<<endl;
+    cout<<focoDir[0]<<","<<focoDir[1]<<","<<focoDir[2]<<endl;
     glutPostRedisplay();
 }
 //------------------------------------------------------------ EVENTOS
@@ -734,6 +772,17 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
             
+        case 'p':
+        case 'P':
+            ligaPoll=!ligaPoll;
+            glutPostRedisplay();
+            break;
+        case 'k':
+        case 'K':
+            ligaEscadas=!ligaEscadas;
+            glutPostRedisplay();
+            break;
+            
             //--------------------------- Escape
         case 27:
             exit(0);
@@ -783,6 +832,8 @@ void init(void) {
     glEnable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT2);
+    glEnable(GL_LIGHT3);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);    // dos dois lados
     
     initTexturas();
