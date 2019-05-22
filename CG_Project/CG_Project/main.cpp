@@ -1,4 +1,4 @@
-// g++ -o main  main.cpp RgbImage.cpp   -framework OpenGL -framework GLUT -Wno-error=deprecated-declarations
+// g++ -o main  main.cpp RgbImage.cpp  -Wno-deprecated -framework OpenGL -framework GLUT 
 //Librairies
 #include <stdlib.h>
 #include <iostream>
@@ -14,11 +14,87 @@
 
 //Global variables
 #define PI 3.14159
-
+#define frand()			((float)rand()/RAND_MAX)
+#define MAX_PARTICULAS  2500
+#define RandomFactor 2.0	//cannot be variable, because it is only use in InitFountain(),
 using namespace std;
 
-GLfloat tamanho = 70.0;
 GLfloat tamanhoY = 32.5;
+
+
+struct Svertex { // posição 
+    GLfloat x,y,z;
+};
+
+class CDrop
+{
+private:
+	GLfloat time;  //How many steps the drop was "outside", when it falls into the water, time is set back to 0
+	Svertex ConstantSpeed;  //See the doc for explanation of the physics
+	GLfloat AccFactor;
+public:
+	void SetConstantSpeed (Svertex NewSpeed);
+	void SetAccFactor(GLfloat NewAccFactor);
+	void SetTime(GLfloat NewTime);
+	void GetNewPosition(Svertex * PositionVertex);  //increments time, gets the new position
+};
+
+void CDrop::SetConstantSpeed(Svertex NewSpeed)
+{
+	ConstantSpeed = NewSpeed;
+}
+
+void CDrop::SetAccFactor (GLfloat NewAccFactor)
+{
+	AccFactor = NewAccFactor;
+}
+
+void CDrop::SetTime(GLfloat NewTime)
+{
+	time = NewTime;
+}
+
+void CDrop::GetNewPosition(Svertex * PositionVertex)
+{   
+    glPushMatrix();
+		glTranslatef(PositionVertex->x,PositionVertex->y, PositionVertex->z);
+		glutSolidSphere(0.5,20, 20);
+	glPopMatrix();
+	Svertex Position; time += 1.0;
+    cout<<PositionVertex->x<<endl;
+    cout<<PositionVertex->y<<endl;
+    cout<<PositionVertex->z<<endl;
+   
+    //------------------------------------------------------------------------- Posição
+    Position.x = ConstantSpeed.x * time ;
+    cout<<"Constant Speed: "<<ConstantSpeed.x<<endl;
+    Position.y = ConstantSpeed.y * time - 0.5*AccFactor * time * time; 
+    Position.z = ConstantSpeed.z * time;
+    PositionVertex->x = Position.x; 
+    PositionVertex->y = Position.y ; 
+    PositionVertex->z = Position.z;
+    //------------------------------------------------------------------------- Bate no Chão
+    if (Position.y < -tamanhoY) {
+        time = time - int(time);
+        if (time > 0.0) time -= 1.0; 
+    }
+		
+}
+
+CDrop * FountainDrops;
+Svertex * FountainVertices;
+GLint Steps = 3;   //a fountain has several steps, each with its own height
+GLint RaysPerStep = 8;  
+GLint DropsPerRay = 50;
+GLfloat DropsComplete = Steps * RaysPerStep * DropsPerRay;
+GLfloat AngleOfDeepestStep = 80;
+GLfloat AccFactor = 0.011;
+
+Particle  particula1[MAX_PARTICULAS];
+GLint    milisec = 1000; 
+
+GLfloat tamanho = 70.0;
+
 GLfloat heightstairs = 10;
 GLfloat widthstairs = 10;
 GLfloat fountain_walls = 40;
@@ -69,6 +145,9 @@ GLfloat light2_focoCorEsp[4] = {5.0, 5.0, 5.0, 1.0};
 
 GLfloat light3_position[] = {-22.3496, -4, -265.98, 1.0};
 GLfloat light3_dir[] = {0.665709, -0.05, 0.875702};
+
+
+
 //------------------------------------------------------------ ILUMINACAO
 void initLights(void)
 {
@@ -256,7 +335,82 @@ void initTexturas()
                  imag.GetNumCols(),
                  imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
                  imag.ImageData());
+
+    //=======================================Water
+    glGenTextures(1, &texture[9]);
+    glBindTexture(GL_TEXTURE_2D, texture[9]);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    imag.LoadBmpFile("/Users/pedrochicoria/Desktop/UC/LEI/CG/Project/ProjectCG/CG_Project/CG_Project/texturas/water.bmp");
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 imag.GetNumCols(),
+                 imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 imag.ImageData());
+
 }
+GLfloat GetRandomFloat(GLfloat range)
+{
+	return (GLfloat)rand() / (GLfloat)RAND_MAX * range * RandomFactor;
+}
+
+void iniParticulas(Particle *particula)
+{   
+
+    FountainDrops = new CDrop [ int(DropsComplete) ];
+	FountainVertices = new Svertex [ int(DropsComplete) ];
+	Svertex NewSpeed;
+	GLfloat DropAccFactor; //different from AccFactor because of the random change
+	GLfloat TimeNeeded;
+	GLfloat StepAngle; //Angle, which the ray gets out of the fountain with
+	GLfloat RayAngle;	//Angle you see when you look down on the fountain
+	GLint i,j,k;
+   
+	for (k = 0; k <Steps; k++)
+	{
+		for (j = 0; j < RaysPerStep; j++)
+		{
+			for (i = 0; i < DropsPerRay; i++)
+			{   
+				DropAccFactor = AccFactor + GetRandomFloat(0.0005);
+				StepAngle = AngleOfDeepestStep + (90.0-AngleOfDeepestStep) 
+						* GLfloat(k) / (Steps-1) + GetRandomFloat(0.2+0.8*(Steps-k-1)/(Steps-1));
+              
+				//This is the speed caused by the step:
+				NewSpeed.x = cos ( StepAngle * PI / 180.0) * (0.2+0.04*k);
+				NewSpeed.y = sin ( StepAngle * PI / 180.0) * (0.2+0.04*k);
+				//This is the speed caused by the ray:
+				RayAngle = (GLfloat)j / (GLfloat)RaysPerStep * 360.0;
+				//for the next computations "NewSpeed.x" is the radius. Care! Dont swap the two
+				//lines, because the second one changes NewSpeed.x!
+				NewSpeed.z = NewSpeed.x * sin ( RayAngle * PI /180.0);
+				NewSpeed.x = NewSpeed.x * cos ( RayAngle * PI /180.0);	
+				//Calculate how many steps are required, that a drop comes out and falls down again
+				TimeNeeded = NewSpeed.y/ DropAccFactor;
+                cout<<i+j*DropsPerRay+k*DropsPerRay*RaysPerStep<<endl;
+				FountainDrops[i+j*DropsPerRay+k*DropsPerRay*RaysPerStep].SetConstantSpeed ( NewSpeed );
+				FountainDrops[i+j*DropsPerRay+k*DropsPerRay*RaysPerStep].SetAccFactor (DropAccFactor);
+				FountainDrops[i+j*DropsPerRay+k*DropsPerRay*RaysPerStep].SetTime(TimeNeeded * i / DropsPerRay);
+                
+			}
+		}
+	}
+
+
+	//Tell OGL that we'll use the vertex array function
+	glEnableClientState(GL_VERTEX_ARRAY);
+	//Pass the date position
+	glVertexPointer(	3,			//x,y,z-components
+						GL_FLOAT,	//data type of SVertex
+						0,			//the vertices are tightly packed
+						FountainVertices);
+}
+
+
+
+
 
 void drawSkySphere()
 {
@@ -829,6 +983,52 @@ void drawScene()
     drawPool();
 }
 
+void showParticulas(Particle *particula, int sistema) {
+ int i;
+ int numero;
+
+ numero=(int) (frand()*10.0);
+ 
+ for (i=0; i<MAX_PARTICULAS; i++)
+	{
+
+	glColor4f(1,1,1, particula[i].life);
+    
+ 	/*glBegin(GL_QUADS);				        
+		glTexCoord2d(0,0); glVertex3f(particula[i].x -particula[i].size, particula[i].y -particula[i].size, particula[i].z);      
+		glTexCoord2d(1,0); glVertex3f(particula[i].x +particula[i].size, particula[i].y -particula[i].size, particula[i].z);        
+		glTexCoord2d(1,1); glVertex3f(particula[i].x +particula[i].size, particula[i].y +particula[i].size, particula[i].z);            
+		glTexCoord2d(0,1); glVertex3f(particula[i].x -particula[i].size, particula[i].y +particula[i].size, particula[i].z);       
+	glEnd();	
+    */
+    glPushMatrix();
+		glTranslatef(particula[i].x,particula[i].y, particula[i].z);
+		glutSolidSphere(0.5,20, 20);
+	glPopMatrix();
+    
+    particula[i].x += particula[i].vx;
+    particula[i].y += particula[i].vy;
+    particula[i].z += particula[i].vz;
+    particula[i].vx += particula[i].ax;
+    particula[i].vy += particula[i].ay;
+    particula[i].vz += particula[i].az;
+	particula[i].life -= particula[i].fade;	
+	}
+
+}
+void DrawFountain(void)
+{
+	glColor4f(0.8,0.8,0.8,0.8);
+	
+	for (int i = 0; i < DropsComplete; i++)
+	{
+		FountainDrops[i].GetNewPosition(&FountainVertices[i]);
+	}
+	glDrawArrays(	GL_POINTS,
+					0,
+					DropsComplete);
+}
+
 void display(void)
 {
     glClearColor(0.8, 0.8, 0.8, 1.0);
@@ -849,6 +1049,8 @@ void display(void)
     initLights();
 
     drawScene();
+     //showParticulas(particula1, 1);
+     DrawFountain();
     glutSwapBuffers();
 }
 
@@ -1032,6 +1234,7 @@ void init(void)
     initTexturas();
     initLights();
     initMaterials(0);
+    iniParticulas(particula1);
 }
 
 int main(int argc, char **argv)
