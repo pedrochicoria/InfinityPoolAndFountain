@@ -20,7 +20,7 @@
 using namespace std;
 
 GLfloat tamanhoY = 32.5;
-
+GLfloat WaterHeight = 0.9;
 
 struct Svertex { // posição 
     GLfloat x,y,z;
@@ -56,10 +56,7 @@ void CDrop::SetTime(GLfloat NewTime)
 
 void CDrop::GetNewPosition(Svertex * PositionVertex)
 {   
-    glPushMatrix();
-		glTranslatef(PositionVertex->x,PositionVertex->y, PositionVertex->z);
-		glutSolidSphere(0.5,20, 20);
-	glPopMatrix();
+   
 	Svertex Position; time += 1.0;
     cout<<PositionVertex->x<<endl;
     cout<<PositionVertex->y<<endl;
@@ -71,10 +68,10 @@ void CDrop::GetNewPosition(Svertex * PositionVertex)
     Position.y = ConstantSpeed.y * time - 0.5*AccFactor * time * time; 
     Position.z = ConstantSpeed.z * time;
     PositionVertex->x = Position.x; 
-    PositionVertex->y = Position.y ; 
+    PositionVertex->y = Position.y + WaterHeight; 
     PositionVertex->z = Position.z;
     //------------------------------------------------------------------------- Bate no Chão
-    if (Position.y < -tamanhoY) {
+    if (Position.y < -50) {
         time = time - int(time);
         if (time > 0.0) time -= 1.0; 
     }
@@ -84,13 +81,13 @@ void CDrop::GetNewPosition(Svertex * PositionVertex)
 CDrop * FountainDrops;
 Svertex * FountainVertices;
 GLint Steps = 3;   //a fountain has several steps, each with its own height
-GLint RaysPerStep = 8;  
-GLint DropsPerRay = 50;
+GLint RaysPerStep = 10;  
+GLint DropsPerRay = 70;
 GLfloat DropsComplete = Steps * RaysPerStep * DropsPerRay;
 GLfloat AngleOfDeepestStep = 80;
-GLfloat AccFactor = 0.011;
+GLfloat AccFactor = 0.0011;
 
-Particle  particula1[MAX_PARTICULAS];
+//Particle  particula1[MAX_PARTICULAS];
 GLint    milisec = 1000; 
 
 GLfloat tamanho = 70.0;
@@ -119,8 +116,8 @@ GLfloat rFoco = 1.1, aFoco = aVisao;
 GLfloat focoPini[] = {obsPini[0], obsPini[1], obsPini[2], 1.0};
 GLfloat focoPfin[] = {obsPini[0] - rFoco * cos(aFoco), obsPini[1], obsPini[2] - rFoco *sin(aFoco), 1.0};
 GLfloat focoDir[] = {focoPfin[0] - focoPini[0], 0, focoPfin[2] - focoPini[2]};
-GLfloat focoExp = 10.0;
-GLfloat focoCut = 10.0;
+GLfloat focoExp = 2.0;
+GLfloat focoCut = 2.0;
 GLfloat angZoom = 80;
 GLfloat incZoom = 3;
 GLuint movement = -1; //-1 para fora do edificio | 0  o res de chão | 1 para o primeiro movement
@@ -356,7 +353,7 @@ GLfloat GetRandomFloat(GLfloat range)
 	return (GLfloat)rand() / (GLfloat)RAND_MAX * range * RandomFactor;
 }
 
-void iniParticulas(Particle *particula)
+void iniParticulas(void)
 {   
 
     FountainDrops = new CDrop [ int(DropsComplete) ];
@@ -983,39 +980,6 @@ void drawScene()
     drawPool();
 }
 
-void showParticulas(Particle *particula, int sistema) {
- int i;
- int numero;
-
- numero=(int) (frand()*10.0);
- 
- for (i=0; i<MAX_PARTICULAS; i++)
-	{
-
-	glColor4f(1,1,1, particula[i].life);
-    
- 	/*glBegin(GL_QUADS);				        
-		glTexCoord2d(0,0); glVertex3f(particula[i].x -particula[i].size, particula[i].y -particula[i].size, particula[i].z);      
-		glTexCoord2d(1,0); glVertex3f(particula[i].x +particula[i].size, particula[i].y -particula[i].size, particula[i].z);        
-		glTexCoord2d(1,1); glVertex3f(particula[i].x +particula[i].size, particula[i].y +particula[i].size, particula[i].z);            
-		glTexCoord2d(0,1); glVertex3f(particula[i].x -particula[i].size, particula[i].y +particula[i].size, particula[i].z);       
-	glEnd();	
-    */
-    glPushMatrix();
-		glTranslatef(particula[i].x,particula[i].y, particula[i].z);
-		glutSolidSphere(0.5,20, 20);
-	glPopMatrix();
-    
-    particula[i].x += particula[i].vx;
-    particula[i].y += particula[i].vy;
-    particula[i].z += particula[i].vz;
-    particula[i].vx += particula[i].ax;
-    particula[i].vy += particula[i].ay;
-    particula[i].vz += particula[i].az;
-	particula[i].life -= particula[i].fade;	
-	}
-
-}
 void DrawFountain(void)
 {
 	glColor4f(0.8,0.8,0.8,0.8);
@@ -1050,7 +1014,11 @@ void display(void)
 
     drawScene();
      //showParticulas(particula1, 1);
+     glPushMatrix();
+     glTranslated((-175), -5, 0);
+     glScalef(2,1,2);
      DrawFountain();
+     glPopMatrix();
     glutSwapBuffers();
 }
 
@@ -1222,7 +1190,7 @@ void init(void)
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//also try GL_LINE
     //…………………………………………………………………………………………………………………………… ILUMINACAO
     glEnable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
@@ -1234,7 +1202,7 @@ void init(void)
     initTexturas();
     initLights();
     initMaterials(0);
-    iniParticulas(particula1);
+    iniParticulas();
 }
 
 int main(int argc, char **argv)
